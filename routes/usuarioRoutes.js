@@ -1,10 +1,10 @@
 import express from "express";
+import { formularioLogin, formularioRegistro, formularioRecuperarPassword} from "../controllers/usuarioController.js";
+
 const router = express.Router();
 
-router.get('/',(req,res)=>{
-    res.send('Hola inmobiliaria')
-})
-router.post('/',(req,res)=>{
-    res.json('{msg:"Respuesta por POST"}')
-})
- export default router
+router.get('/login',formularioLogin)
+router.get('/registro',formularioRegistro)
+router.get('/recuperar-password',formularioRecuperarPassword)
+
+export default router
