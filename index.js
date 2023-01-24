@@ -1,13 +1,35 @@
 import express from 'express'
+import csrf from 'csurf'
+import cookieParser from 'cookie-parser'
 import usuarioRoutes from './routes/usuarioRoutes.js'
 import db from './config/db.js'
-import e from 'express'
+
+
 // Crear la app
 const app = express()
+
+// //Habilitar coockie-parser
+// app.use( cookieParser())
+// let csrfProtection = csrf({ cookie: true });
+// app.use("/auth", csrfProtection, usuarioRoutes );
+// //Habilitar CSRF
+// app.use( csrf({cookie:true}))
+
+//Habilitar lectura de datos de formularios
+app.use(express.urlencoded({extended: true}))
+
+// Habilitar Cookie Parser
+app.use( cookieParser() )
+
+// Habilitar CSRF
+app.use( csrf({cookie: true}) )
+
+
 
 //conexion a la base de datos
 try {
     await db.authenticate();
+    db.sync()
     console.log('Conectado a la base de datos')
     
 } catch (error) {
@@ -20,11 +42,13 @@ app.set('views', './views')
 //Carpeta publica
 app.use(express.static('public'))
 
+
 // Routing
 app.use('/auth', usuarioRoutes)
 
+
 //Definir el puerto y arrancar el proyecto
-const port = 3000
+const port = process.env.PORT || 3000
 app.listen(port, ()=>{
     console.log(`El servidor esta funcionando en el puerto ${port}`)
 })
