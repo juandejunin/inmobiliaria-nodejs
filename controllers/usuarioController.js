@@ -1,7 +1,7 @@
 import { check, validationResult } from 'express-validator'
 import Usuario from "../models/Usuario.js"
 import { genararId } from '../helpers/tokens.js'
-import { emailRegistro } from '../helpers/email.js'
+import { emailRegistro, recuperarPassword } from '../helpers/email.js'
 
 const formularioLogin = (req, res) => {
     res.render('auth/login', {
@@ -13,9 +13,9 @@ const formularioRegistro = (req, res) => {
     res.render('auth/registro', {
         pagina: 'Crear Cuenta',
         csrfToken: req.csrfToken()
-        
+
     })
-    
+
 }
 const registrar = async (req, res) => {
 
@@ -112,40 +112,53 @@ const formularioRecuperarPassword = (req, res) => {
     })
 }
 
-const resetPassword = async (req,res)=>{
-        //validaciones
-   
-        await check('email').isEmail().withMessage('El email ingresado no es valido ').run(req)
-        
-        let resultado = validationResult(req)
-    
-    
-        //verificar resultados vacios
-        if (!resultado.isEmpty()) {
-            return res.render('auth/recuperar-password', {
-                pagina: 'Recupera tu Password',
-                csrfToken: req.csrfToken(),
-                errores: resultado.array()
+const resetPassword = async (req, res) => {
+    //validaciones
 
-            })
-    
-        }
-        //buscar el usuario
-        const { email } = req.body
+    await check('email').isEmail().withMessage('El email ingresado no es valido ').run(req)
 
-        const usuario = await Usuario.findOne({where: { email }})
-        if(!usuario){
-            return res.render('auth/recuperar-password', {
-                pagina: 'Recupera tu Password',
-                csrfToken: req.csrfToken(),
-                errores: [{msg:'El email no pertenece a ningun usuario'}]
-            })
-        }
-        //generar un nuevo token
-        usuario.token = genararId();
-        await usuario.save();
+    let resultado = validationResult(req)
 
-        //enviar email
+
+    //verificar resultados vacios
+    if (!resultado.isEmpty()) {
+        return res.render('auth/recuperar-password', {
+            pagina: 'Recupera tu Password',
+            csrfToken: req.csrfToken(),
+            errores: resultado.array()
+
+        })
+
+    }
+    //buscar el usuario
+    const { email } = req.body
+
+    const usuario = await Usuario.findOne({ where: { email } })
+    if (!usuario) {
+        return res.render('auth/recuperar-password', {
+            pagina: 'Recupera tu Password',
+            csrfToken: req.csrfToken(),
+            errores: [{ msg: 'El email no pertenece a ningun usuario' }]
+        })
+    }
+    //generar un nuevo token
+    usuario.token = genararId();
+    await usuario.save();
+
+    //enviar email
+    recuperarPassword({
+        email: usuario.email,
+        nombre: usuario.nombre,
+        token: usuario.token
+    })
+
+    //Randerizar un msj
+
+    res.render('templates/mensaje', {
+        pagina: 'Restablece tu password',
+        mensaje: 'Hemos enviado un email de con las instrucciones para restablecer el password'
+    })
+
 
 
 }
@@ -154,8 +167,8 @@ const comprobarToken = (req, res) => {
 
 }
 
-const nuevoToken = (req, res) => {
-    
+const nuevoPassword = (req, res) => {
+
 }
 export {
     formularioLogin,
@@ -163,5 +176,7 @@ export {
     confirmar,
     formularioRecuperarPassword,
     resetPassword,
-    registrar
+    registrar,
+    comprobarToken,
+    nuevoPassword
 }
