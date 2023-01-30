@@ -1,7 +1,8 @@
 import { check, validationResult } from 'express-validator'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import Usuario from "../models/Usuario.js"
-import { genararId } from '../helpers/tokens.js'
+import { genararId, generarJWT } from '../helpers/tokens.js'
 import { emailRegistro, emailRecuperarPassword } from '../helpers/email.js'
 
 const formularioLogin = (req, res) => {
@@ -53,11 +54,6 @@ const autenticar = async (req, res) => {
 
     //Revisar el password
     const userDB = await Usuario.findOne({ where: { email } })
-    // if (userDB) {
-    //   if (userDB.security?.restorePassword) {
-    //     return createResponse(false, null, 'A password change has been requested and you must finish the process', 400)
-    //   }
-
     if (!bcrypt.compareSync(password, userDB.password)) {
         return res.render('auth/login', {
             pagina: 'Iniciar Sesión',
@@ -65,18 +61,19 @@ const autenticar = async (req, res) => {
             errores: [{ msg: 'El Password es Incorrecto' }]
         })
     }
-    // const elusuario = usuario.verificarPassword
-    // if(!elusuario.verificarPassword(password)) {
-    //     return res.render('auth/login', {
-    //         pagina: 'Iniciar Sesión',
-    //         csrfToken : req.csrfToken(),
-    //         errores: [{msg: 'El Password es Incorrecto'}]
-    //     })
-    // }
 
+    // Autenticar al usuario
+    const token = generarJWT({ id: usuario.id, nombre: usuario.nombre })
 
+    console.log(token)
 
+    // Almacenar en un cookie
 
+    return res.cookie('_token', token, {
+        httpOnly: true,
+        // secure: true,
+        // sameSite: true
+    }).redirect('/mis-propiedades')
 
 }
 
