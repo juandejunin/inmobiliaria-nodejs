@@ -8,13 +8,6 @@ import db from './config/db.js'
 // Crear la app
 const app = express()
 
-// //Habilitar coockie-parser
-// app.use( cookieParser())
-// let csrfProtection = csrf({ cookie: true });
-// app.use("/auth", csrfProtection, usuarioRoutes );
-// //Habilitar CSRF
-// app.use( csrf({cookie:true}))
-
 //Habilitar lectura de datos de formularios
 app.use(express.urlencoded({extended: true}))
 
@@ -23,8 +16,6 @@ app.use( cookieParser() )
 
 // Habilitar CSRF
 app.use( csrf({cookie: true}) )
-
-
 
 //conexion a la base de datos
 try {

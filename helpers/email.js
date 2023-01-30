@@ -29,7 +29,7 @@ const emailRegistro = async(datos)=>{
 
 }
 
-const recuperarPassword = async(datos)=>{
+const emailRecuperarPassword = async(datos)=>{
   const transport = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
@@ -50,7 +50,7 @@ const recuperarPassword = async(datos)=>{
       html: `
       <p>Hola ${nombre}, solicitaste restablecer tu password</p>
       <p>hace click en el siguiente enlace
-      <a href="${process.env.BACKEND_URL}:${process.env.PORT}/auth/recuperar-password/${token}/${token}">Restablecer Password</a></p>
+      <a href="${process.env.BACKEND_URL}:${process.env.PORT}/auth/recuperar-password/${token}">Restablecer Password</a></p>
       
       <p>Si no solicitaste el cambio ignora este correo</p>
       `
@@ -61,5 +61,5 @@ const recuperarPassword = async(datos)=>{
 
 export{
     emailRegistro,
-    recuperarPassword
+    emailRecuperarPassword
 }
